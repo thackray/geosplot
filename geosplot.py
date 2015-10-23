@@ -6,14 +6,27 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable as mal
 
 
 def geosmap(lon, lat, data, proj = 'mill',
-            colorticks=None, figsize=(18,14),
-            latlines=None, lonlines=None):
+            colorticks=None, colormap='seismic',
+            figsize=(18,14),
+            latlines=None, lonlines=None,
+            ortho0=None):
     if proj == 'mill':
         bmargs = {'projection' : 'mill', 
                   'llcrnrlon' : min(lon), 
                   'llcrnrlat' : min(lat),
                   'urcrnrlon' : max(lon), 
                   'urcrnrlat' : max(lat)
+                  }
+    elif proj == 'ortho':
+        if ortho0:
+            lon0 = ortho0[0]
+            lat0 = ortho0[1]
+        else:
+            lon0 = lon[len(lon)/2]
+            lat0 = lat[len(lat)/2]
+        bmargs = {'projection' : 'ortho',
+                  'lon_0' : lon0,
+                  'lat_0' : lat0,
                   }
     else:
         print "Projection not recognized"
@@ -39,7 +52,7 @@ def geosmap(lon, lat, data, proj = 'mill',
         meridians = np.arange(min(lon),max(lon),60)
     bm.drawmeridians(meridians, labels=[0,0,0,1])
 
-    bm.pcolor(x,y,data, cmap='winter')
+    bm.pcolor(x,y,data, cmap=colormap)
 
     if colorticks:
         tiks = colorticks
@@ -77,7 +90,10 @@ if __name__=='__main__':
     lat[0] = -89.
     lat[-1] = 89.
 
-    zdata = 10*make_z(lon,lat).T + noise
+    zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    geosmap(lon,lat,zdata)
+    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5])
+
+#    geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter')
+    
     pl.show()
