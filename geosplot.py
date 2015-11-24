@@ -24,6 +24,7 @@ def geosmap(lon, lat, data, proj = 'mill',
             figsize=(18,14),
             latlines=None, lonlines=None,
             ortho0=None,
+            colorlimits=None,
             coastlines=True,
             coastcolor='white',
             plottype='pcolor'):
@@ -37,6 +38,8 @@ def geosmap(lon, lat, data, proj = 'mill',
     proj - type of projection to plot map on
     colormap - color scheme of color axis
     colorticks - points to label on color axis
+    colorlimits - (min,max) tuple: saturation colors for color axis 
+                  if None, use limits of colorticks
     latlines - latitudes at which to draw lines
     lonlines - longitudes at which to draw lines
     figsize - size of figure frame
@@ -99,18 +102,25 @@ def geosmap(lon, lat, data, proj = 'mill',
     ####################
 
     # Plotting and colorbar
-    if plottype == 'pcolor':
-        bm.pcolor(x,y,data, cmap=colormap)
-    elif plottype == 'contourf':
-        bm.contourf(x,y,data)
-    else:
-        print "plottype not recognized"
-        raise TypeError
     if colorticks:
         tiks = colorticks
     else:
         tiks = np.linspace(np.min(data),np.max(data),10)
 
+    if colorlimits:
+        vmin, vmax = colorlimits
+    else:        
+        vmin, vmax = min(tiks), max(tiks)
+
+    if plottype == 'pcolor':
+        bm.pcolor(x,y,data, cmap=colormap, vmin=vmin, vmax=vmax)
+
+    elif plottype == 'contourf':
+        bm.contourf(x,y,data, vmin=vmin, vmax=vmax)
+    else:
+        print "plottype not recognized"
+        raise TypeError
+    
     divider = mal(ax)
     cax = divider.append_axes("right", size='5%', pad=0.05)
     cbar = pl.colorbar(cax=cax,ticks=tiks)
@@ -144,7 +154,7 @@ if __name__=='__main__':
 
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5])
+    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], colorlimits=(-20,50))
 
     geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
             plottype='contourf')
