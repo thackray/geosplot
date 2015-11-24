@@ -21,6 +21,7 @@ except ImportError:
 
 def geosmap(lon, lat, data, proj = 'mill',
             colorticks=None, colormap='seismic',
+            colortick_labels=None,
             colorbar_orientation='vertical',
             figsize=(18,14),
             latlines=None, lonlines=None,
@@ -45,6 +46,7 @@ def geosmap(lon, lat, data, proj = 'mill',
     colormap - color scheme of color axis
     colorbar_orientation - vertical (default) or horizontal
     colorticks - points to label on color axis
+    colortick_labels - labels for colorticks (list of strings)
     colorlimits - (min,max) tuple: saturation colors for color axis 
                   if None, use limits of colorticks
     latlines - latitudes at which to draw lines
@@ -64,6 +66,11 @@ def geosmap(lon, lat, data, proj = 'mill',
 
     assert len(lon) in data.shape, 'lon mismatch with data to plot dimension'
     assert len(lat) in data.shape, 'lat mismatch with data to plot dimension'
+
+    if colortick_labels:
+        assert colorticks, 'Must specify colorticks if specifying labels'
+        assert len(colorticks) == len(colortick_labels), 'colorticks and '\
+                                   'colortick labels must be same size' 
 
     # Set up projection parameters
     if not minlat:
@@ -152,7 +159,10 @@ def geosmap(lon, lat, data, proj = 'mill',
         raise TypeError
     
     divider = mal(ax)
-    tiklabs = ['%.2f'%ti for ti in tiks]
+    if not colortick_labels:
+        tiklabs = ['%.2f'%ti for ti in tiks]
+    else:
+        tiklabs = colortick_labels
 
     if colorbar_orientation in ['vertical','right']:
         cax = divider.append_axes('right', size='5%', pad=0.05)
@@ -191,7 +201,8 @@ if __name__=='__main__':
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
     geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=30,
-            colorbar_orientation='right')
+            colorbar_orientation='right', 
+            colortick_labels=['-5','-2 1/2','zero','2.5','five'])
 
     geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
             plottype='contourf', countries=True, states=True)
