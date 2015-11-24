@@ -21,6 +21,7 @@ except ImportError:
 
 def geosmap(lon, lat, data, proj = 'mill',
             colorticks=None, colormap='seismic',
+            colorbar_orientation='vertical',
             figsize=(18,14),
             latlines=None, lonlines=None,
             minlat=None, maxlat=None,
@@ -42,6 +43,7 @@ def geosmap(lon, lat, data, proj = 'mill',
     Keyword Arguments:
     proj - type of projection to plot map on
     colormap - color scheme of color axis
+    colorbar_orientation - vertical (default) or horizontal
     colorticks - points to label on color axis
     colorlimits - (min,max) tuple: saturation colors for color axis 
                   if None, use limits of colorticks
@@ -126,7 +128,7 @@ def geosmap(lon, lat, data, proj = 'mill',
         meridians = lonlines
     else:
         meridians = np.arange(min(lon),max(lon),60)
-    bm.drawmeridians(meridians, labels=[0,0,0,1], fontsize=20)
+    bm.drawmeridians(meridians, labels=[0,0,1,0], fontsize=20)
     ####################
 
     # Plotting and colorbar
@@ -150,12 +152,18 @@ def geosmap(lon, lat, data, proj = 'mill',
         raise TypeError
     
     divider = mal(ax)
-    cax = divider.append_axes("right", size='5%', pad=0.05)
-    cbar = pl.colorbar(cax=cax,ticks=tiks)
-
     tiklabs = ['%.2f'%ti for ti in tiks]
-    cbar.ax.set_yticklabels(tiklabs, fontsize=20)
-    ####################
+
+    if colorbar_orientation in ['vertical','right']:
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        cbar = pl.colorbar(orientation='vertical',cax=cax,ticks=tiks)
+        cbar.ax.set_yticklabels(tiklabs, fontsize=20)
+    elif colorbar_orientation in ['horizontal','bottom']:
+        cax = divider.append_axes('bottom', size='10%', pad=0.1)
+        cbar = pl.colorbar(orientation='horizontal',cax=cax,ticks=tiks)
+        cbar.ax.set_xticklabels(tiklabs, fontsize=20)
+    
+  ####################
 
 
 if __name__=='__main__':
@@ -182,7 +190,8 @@ if __name__=='__main__':
 
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=30)
+    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=30,
+            colorbar_orientation='right')
 
     geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
             plottype='contourf', countries=True, states=True)
