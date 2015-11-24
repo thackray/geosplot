@@ -28,8 +28,10 @@ def geosmap(lon, lat, data, proj = 'mill',
             ortho0=None,
             colorlimits=None,
             coastlines=True,
+            countries=False,
+            states=False,
             coastcolor='white',
-            bordercolor='black',
+            bordercolor='white',
             plottype='pcolor'):
     """Plot data on map with lon-lat grid.
     Arguments:
@@ -51,7 +53,9 @@ def geosmap(lon, lat, data, proj = 'mill',
     maxlon - maximum longitude to map. If None, use max of given lon
     figsize - size of figure frame
     ortho0 - (lon,lat) point to center ortho projection on
-    coastlines - whether to draw coastlines
+    coastlines - whether to draw coastlines, default True
+    countries - whether to draw country borders, default False
+    states - whether to draw sub-country borders (NA only?), default False
     coastcolor - color to make drawn coastlines
     bordercolor - color to make drawn national and state borders
     """
@@ -105,11 +109,18 @@ def geosmap(lon, lat, data, proj = 'mill',
     if coastlines:
         bm.drawcoastlines(linewidth=1.25, color=coastcolor)
 
+    if countries:
+        bm.drawcountries(linewidth=1, color=bordercolor)
+
+    if states:
+        bm.drawstates(linewidth=1, color=bordercolor)
+
     if latlines:
         parallels = latlines
     else:
         parallels = np.array([-60,-30,0,30,60])
-    bm.drawparallels(parallels, labels=[1,0,0,0], fontsize=20)
+    if not proj in ['ortho']:
+        bm.drawparallels(parallels, labels=[1,0,0,0], fontsize=20)
 
     if lonlines:
         meridians = lonlines
@@ -174,6 +185,6 @@ if __name__=='__main__':
     geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=30)
 
     geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
-            plottype='contourf')
+            plottype='contourf', countries=True, states=True)
     
     pl.show()
