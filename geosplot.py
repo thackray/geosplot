@@ -23,10 +23,13 @@ def geosmap(lon, lat, data, proj = 'mill',
             colorticks=None, colormap='seismic',
             figsize=(18,14),
             latlines=None, lonlines=None,
+            minlat=None, maxlat=None,
+            minlon=None, maxlon=None,
             ortho0=None,
             colorlimits=None,
             coastlines=True,
             coastcolor='white',
+            bordercolor='black',
             plottype='pcolor'):
     """Plot data on map with lon-lat grid.
     Arguments:
@@ -42,22 +45,36 @@ def geosmap(lon, lat, data, proj = 'mill',
                   if None, use limits of colorticks
     latlines - latitudes at which to draw lines
     lonlines - longitudes at which to draw lines
+    minlat - minimum latitude to map. If None, use min of given lat
+    maxlat - maximum latitude to map. If None, use max of given lat
+    minlon - minimum longitude to map. If None, use min of given lon
+    maxlon - maximum longitude to map. If None, use max of given lon
     figsize - size of figure frame
     ortho0 - (lon,lat) point to center ortho projection on
     coastlines - whether to draw coastlines
     coastcolor - color to make drawn coastlines
+    bordercolor - color to make drawn national and state borders
     """
 
     assert len(lon) in data.shape, 'lon mismatch with data to plot dimension'
     assert len(lat) in data.shape, 'lat mismatch with data to plot dimension'
 
     # Set up projection parameters
+    if not minlat:
+        minlat = min(lat)
+    if not maxlat:
+        maxlat = max(lat)
+    if not minlon:
+        minlon = min(lon)
+    if not maxlon:
+        maxlon = max(lon)
+
     if proj == 'mill':
         bmargs = {'projection' : 'mill', 
-                  'llcrnrlon' : min(lon), 
-                  'llcrnrlat' : min(lat),
-                  'urcrnrlon' : max(lon), 
-                  'urcrnrlat' : max(lat)
+                  'llcrnrlon' : minlon, 
+                  'llcrnrlat' : minlat,
+                  'urcrnrlon' : maxlon, 
+                  'urcrnrlat' : maxlat
                   }
     elif proj == 'ortho':
         if ortho0:
@@ -154,7 +171,7 @@ if __name__=='__main__':
 
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], colorlimits=(-20,50))
+    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=30)
 
     geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
             plottype='contourf')
