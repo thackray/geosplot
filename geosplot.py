@@ -145,7 +145,6 @@ def geosmap(lon, lat, data, proj = 'mill',
     # Plotting and colorbar
     if colormap == 'WhGrYlRd':
         WhGrYlRd_scheme = np.genfromtxt('WhGrYlRd.txt',delimiter=' ')
-        print 'setting'
         colormap = mpl.colors.ListedColormap(WhGrYlRd_scheme/255)
 
     if colorticks:
