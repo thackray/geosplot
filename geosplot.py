@@ -32,6 +32,8 @@ def geosmap(lon, lat, data, proj = 'mill',
             coastlines=True,
             countries=False,
             states=False,
+            title=None,
+            titlefontsize=20.,
             coastcolor='white',
             bordercolor='white',
             plottype='pcolor'):
@@ -62,6 +64,7 @@ def geosmap(lon, lat, data, proj = 'mill',
     states - whether to draw sub-country borders (NA only?), default False
     coastcolor - color to make drawn coastlines
     bordercolor - color to make drawn national and state borders
+    title - title to put above plot (string)
     """
 
     assert len(lon) in data.shape, 'lon mismatch with data to plot dimension'
@@ -112,7 +115,7 @@ def geosmap(lon, lat, data, proj = 'mill',
     lons, lats = np.meshgrid(lon, lat)
     x, y = bm(lons, lats)
 
-    pl.figure(figsize=figsize)
+    fig = pl.figure(figsize=figsize)
     ax = pl.gca()
 
     if coastlines:
@@ -158,6 +161,11 @@ def geosmap(lon, lat, data, proj = 'mill',
         print "plottype not recognized"
         raise TypeError
     
+    if title and (colorbar_orientation in ['horizontal','bottom']):
+        fig.suptitle(title,fontsize=titlefontsize)
+    elif title:
+        fig.suptitle(title,fontsize=titlefontsize)
+
     divider = mal(ax)
     if not colortick_labels:
         tiklabs = ['%.2f'%ti for ti in tiks]
@@ -172,6 +180,7 @@ def geosmap(lon, lat, data, proj = 'mill',
         cax = divider.append_axes('bottom', size='10%', pad=0.1)
         cbar = pl.colorbar(orientation='horizontal',cax=cax,ticks=tiks)
         cbar.ax.set_xticklabels(tiklabs, fontsize=20)
+
     
   ####################
 
@@ -200,11 +209,12 @@ if __name__=='__main__':
 
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=30,
+    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=-30,
             colorbar_orientation='right', 
-            colortick_labels=['-5','-2 1/2','zero','2.5','five'])
+            colortick_labels=['-5','-2 1/2','zero','2.5','five'],
+            title='Title')
 
     geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
-            plottype='contourf', countries=True, states=True)
+            plottype='contourf', countries=True, states=True, title='The Title')
     
     pl.show()
