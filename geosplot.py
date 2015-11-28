@@ -18,6 +18,7 @@ try:
 except ImportError:
     print "axes_grid1 module required but not found"
 
+import matplotlib as mpl
 
 def geosmap(lon, lat, data, proj = 'mill',
             colorticks=None, colormap='seismic',
@@ -142,6 +143,11 @@ def geosmap(lon, lat, data, proj = 'mill',
     ####################
 
     # Plotting and colorbar
+    if colormap == 'WhGrYlRd':
+        WhGrYlRd_scheme = np.genfromtxt('WhGrYlRd.txt',delimiter=' ')
+        print 'setting'
+        colormap = mpl.colors.ListedColormap(WhGrYlRd_scheme/255)
+
     if colorticks:
         tiks = colorticks
     else:
@@ -156,7 +162,7 @@ def geosmap(lon, lat, data, proj = 'mill',
         bm.pcolor(x,y,data, cmap=colormap, vmin=vmin, vmax=vmax)
 
     elif plottype == 'contourf':
-        bm.contourf(x,y,data, vmin=vmin, vmax=vmax)
+        bm.contourf(x,y,data, vmin=vmin, vmax=vmax, cmap=colormap)
     else:
         print "plottype not recognized"
         raise TypeError
@@ -214,7 +220,7 @@ if __name__=='__main__':
             colortick_labels=['-5','-2 1/2','zero','2.5','five'],
             title='Title')
 
-    geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='winter',
+    geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='WhGrYlRd',
             plottype='contourf', countries=True, states=True, title='The Title')
     
     pl.show()
