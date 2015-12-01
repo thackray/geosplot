@@ -128,14 +128,14 @@ def geosmap(lon, lat, data, proj = 'mill',
     if states:
         bm.drawstates(linewidth=1, color=bordercolor)
 
-    if latlines:
+    if latlines != None:
         parallels = latlines
     else:
         parallels = np.array([-60,-30,0,30,60])
     if not proj in ['ortho']:
         bm.drawparallels(parallels, labels=[1,0,0,0], fontsize=20)
 
-    if lonlines not None:
+    if lonlines != None:
         meridians = lonlines
     else:
         meridians = np.arange(min(lon),max(lon),60)
