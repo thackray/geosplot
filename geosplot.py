@@ -135,7 +135,7 @@ def geosmap(lon, lat, data, proj = 'mill',
     if not proj in ['ortho']:
         bm.drawparallels(parallels, labels=[1,0,0,0], fontsize=20)
 
-    if lonlines:
+    if lonlines not None:
         meridians = lonlines
     else:
         meridians = np.arange(min(lon),max(lon),60)
