@@ -20,6 +20,7 @@ except ImportError:
 
 import matplotlib as mpl
 
+
 def geosmap(lon, lat, data, proj = 'mill',
             colorticks=None, colormap='seismic',
             colortick_labels=None,
@@ -37,7 +38,10 @@ def geosmap(lon, lat, data, proj = 'mill',
             titlefontsize=20.,
             coastcolor='white',
             bordercolor='white',
-            plottype='pcolor'):
+            plottype='pcolor',
+            fontname='Arial',
+            savefig=False,
+            outfile=None):
     """Plot data on map with lon-lat grid.
     Arguments:
     lon - array-like longitude points
@@ -66,8 +70,17 @@ def geosmap(lon, lat, data, proj = 'mill',
     coastcolor - color to make drawn coastlines
     bordercolor - color to make drawn national and state borders
     title - title to put above plot (string)
+    fontname - font name (use matplotlib font manager to check 
+               available fonts)
+    savefig - whether or not to save output to file, default False
+    outfile - name of output file if savefig is True
+               
     """
 
+    # Set font name
+
+    mpl.rcParams['font.family'] = fontname
+    
     assert len(lon) in data.shape, 'lon mismatch with data to plot dimension'
     assert len(lat) in data.shape, 'lat mismatch with data to plot dimension'
 
@@ -186,6 +199,13 @@ def geosmap(lon, lat, data, proj = 'mill',
         cbar = pl.colorbar(orientation='horizontal',cax=cax,ticks=tiks)
         cbar.ax.set_xticklabels(tiklabs, fontsize=20)
 
+    if savefig:
+        if outfile !=None:
+            fig.savefig(outfile)
+        else:
+            print "No outfile name given"
+        
+            
     
   ####################
 
