@@ -202,8 +202,6 @@ def geosmap(lon, lat, data, proj = 'mill',
     if savefig:
         if outfile !=None:
             fig.savefig(outfile)
-        else:
-            print "No outfile name given"
         
             
     
