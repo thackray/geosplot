@@ -20,7 +20,6 @@ except ImportError:
 
 import matplotlib as mpl
 
-
 def geosmap(lon, lat, data, proj = 'mill',
             colorticks=None, colormap='seismic',
             colortick_labels=None,
@@ -41,13 +40,16 @@ def geosmap(lon, lat, data, proj = 'mill',
             plottype='pcolor',
             fontname='Arial',
             savefig=False,
-            outfile=None):
+            outfile=None,
+            subplot=False,
+            subplot_position=None,
+            fig=None
+            ):
     """Plot data on map with lon-lat grid.
     Arguments:
     lon - array-like longitude points
     lat - array-like latitude points
     data - 2D array of points to plot on lon-lat grid
-
     Keyword Arguments:
     proj - type of projection to plot map on
     colormap - color scheme of color axis
@@ -74,6 +76,9 @@ def geosmap(lon, lat, data, proj = 'mill',
                available fonts)
     savefig - whether or not to save output to file, default False
     outfile - name of output file if savefig is True
+    subplot - whether to plot subplots,
+    subplot_position - relative location of each subplot,[nrows,ncols,plot_number]
+    fig - create a figure outside of geosplot when subplot is active
                
     """
 
@@ -129,7 +134,15 @@ def geosmap(lon, lat, data, proj = 'mill',
     lons, lats = np.meshgrid(lon, lat)
     x, y = bm(lons, lats)
 
-    fig = pl.figure(figsize=figsize)
+    # subplot arguments; figure need to be created outside of geosplot for the this to work
+    if not fig: 
+        fig = pl.figure(figsize=figsize)
+
+    if subplot:
+        assert subplot_position is not None, "subplot_position not specified"
+        nrows, ncols, plot_number = subplot_position
+        fig.add_subplot(nrows, ncols, plot_number)
+
     ax = pl.gca()
 
     if coastlines:
@@ -202,9 +215,11 @@ def geosmap(lon, lat, data, proj = 'mill',
     if savefig:
         if outfile !=None:
             fig.savefig(outfile)
+
         else:
             print "No outfile given: fig not saved"
             
+    return fig
     
   ####################
 
@@ -233,12 +248,15 @@ if __name__=='__main__':
 
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=-30,
-            colorbar_orientation='right', 
-            colortick_labels=['-5','-2 1/2','zero','2.5','five'],
-            title='Title')
+    fg = geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=-30,
+                 colorbar_orientation='right', 
+                 colortick_labels=['-5','-2 1/2','zero','2.5','five'],
+                 title='Title',subplot=True, subplot_position=(1,2,1))
 
-    geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), colormap='WhGrYlRd',
-            plottype='contourf', countries=True, states=True, title='The Title')
+    fg = geosmap(lon,lat,zdata, proj='ortho', ortho0 = (50,45), 
+                colormap='WhGrYlRd',
+                plottype='contourf', countries=True, states=True, 
+                title='The Title',
+                subplot=True, subplot_position=(1,2,2), fig=fg)
     
     pl.show()
