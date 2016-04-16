@@ -43,7 +43,12 @@ def geosmap(lon, lat, data, proj = 'mill',
             outfile=None,
             subplot=False,
             subplot_position=None,
-            fig=None
+            subplot_title=None,
+            fig=None,
+            meridianlabels='top',
+            parallellabels='left',
+            hide_colorbar=False,
+            tight=False,
             ):
     """Plot data on map with lon-lat grid.
     Arguments:
@@ -129,11 +134,6 @@ def geosmap(lon, lat, data, proj = 'mill',
         return
     ####################
 
-    # General figure details
-    bm = Basemap(**bmargs)
-    lons, lats = np.meshgrid(lon, lat)
-    x, y = bm(lons, lats)
-
     # subplot arguments; figure need to be created outside of geosplot for the this to work
     if not fig: 
         fig = pl.figure(figsize=figsize)
@@ -141,9 +141,18 @@ def geosmap(lon, lat, data, proj = 'mill',
     if subplot:
         assert subplot_position is not None, "subplot_position not specified"
         nrows, ncols, plot_number = subplot_position
-        fig.add_subplot(nrows, ncols, plot_number)
-
+        axi = fig.add_subplot(nrows, ncols, plot_number)
+        if subplot_title:
+            axi.set_title(subplot_title)
+        if tight:
+            fig.tight_layout()
     ax = pl.gca()
+
+    # General figure details
+    bm = Basemap(**bmargs)
+    lons, lats = np.meshgrid(lon, lat)
+    x, y = bm(lons, lats)
+
 
     if coastlines:
         bm.drawcoastlines(linewidth=1.25, color=coastcolor)
@@ -159,13 +168,23 @@ def geosmap(lon, lat, data, proj = 'mill',
     else:
         parallels = np.array([-60,-30,0,30,60])
     if not proj in ['ortho']:
-        bm.drawparallels(parallels, labels=[1,0,0,0], fontsize=20)
+        if parallellabels == 'left':
+            bm.drawparallels(parallels, labels=[1,0,0,0], fontsize=20)
+        elif parallellabels == 'right':
+            bm.drawparallels(parallels, labels=[0,1,0,0], fontsize=20)
+        else:
+            bm.drawparallels(parallels, labels=[0,0,0,0], fontsize=20)
 
     if lonlines != None:
         meridians = lonlines
     else:
         meridians = np.arange(min(lon),max(lon),60)
-    bm.drawmeridians(meridians, labels=[0,0,1,0], fontsize=20)
+    if meridianlabels == 'bottom':
+        bm.drawmeridians(meridians, labels=[0,0,0,1], fontsize=20)
+    elif meridianlabels == 'top':
+        bm.drawmeridians(meridians, labels=[0,0,1,0], fontsize=20)
+    else:
+        bm.drawmeridians(meridians, labels=[0,0,0,0])
     ####################
 
     # Plotting and colorbar
@@ -203,14 +222,15 @@ def geosmap(lon, lat, data, proj = 'mill',
     else:
         tiklabs = colortick_labels
 
-    if colorbar_orientation in ['vertical','right']:
-        cax = divider.append_axes('right', size='5%', pad=0.05)
-        cbar = pl.colorbar(orientation='vertical',cax=cax,ticks=tiks)
-        cbar.ax.set_yticklabels(tiklabs, fontsize=20)
-    elif colorbar_orientation in ['horizontal','bottom']:
-        cax = divider.append_axes('bottom', size='10%', pad=0.1)
-        cbar = pl.colorbar(orientation='horizontal',cax=cax,ticks=tiks)
-        cbar.ax.set_xticklabels(tiklabs, fontsize=20)
+    if not hide_colorbar:
+        if colorbar_orientation in ['vertical','right']:
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            cbar = pl.colorbar(orientation='vertical',cax=cax,ticks=tiks)
+            cbar.ax.set_yticklabels(tiklabs, fontsize=20)
+        elif colorbar_orientation in ['horizontal','bottom']:
+            cax = divider.append_axes('bottom', size='10%', pad=0.1)
+            cbar = pl.colorbar(orientation='horizontal',cax=cax,ticks=tiks)
+            cbar.ax.set_xticklabels(tiklabs, fontsize=20)
 
     if savefig:
         if outfile !=None:
