@@ -77,6 +77,7 @@ def geosmap(lon, lat, data, proj = 'mill',
     coastcolor - color to make drawn coastlines
     bordercolor - color to make drawn national and state borders
     title - title to put above plot (string)
+    titlefontsize - font size for color
     fontname - font name (use matplotlib font manager to check 
                available fonts)
     savefig - whether or not to save output to file, default False
@@ -84,7 +85,12 @@ def geosmap(lon, lat, data, proj = 'mill',
     subplot - whether to plot subplots,
     subplot_position - relative location of each subplot,[nrows,ncols,plot_number]
     fig - create a figure outside of geosplot when subplot is active
-               
+    tight - Flag for using the tight_layout call. default False
+    hide_colorbar - Flag to supress drawing the colorbar. default False
+    parallellabels - What side of the map to draw parallel labels on. default 'left'
+                     If not 'left' or 'right', will not draw labels.
+    meridianlabels - What side of the map to draw meridian labels on. default 'top'
+                     If not 'top' or 'bottom', will not draw labels.
     """
 
     # Set font name
