@@ -29,6 +29,7 @@ def geosmap(lon, lat, data, proj = 'mill',
             minlat=None, maxlat=None,
             minlon=None, maxlon=None,
             ortho0=None,
+            colorbins=None,
             colorlimits=None,
             coastlines=True,
             countries=False,
@@ -95,9 +96,13 @@ def geosmap(lon, lat, data, proj = 'mill',
     assert len(lat) in data.shape, 'lat mismatch with data to plot dimension'
 
     if colortick_labels:
-        assert colorticks, 'Must specify colorticks if specifying labels'
-        assert len(colorticks) == len(colortick_labels), 'colorticks and '\
-                                   'colortick labels must be same size' 
+        assert colorticks or colorbins, 'Must specify colorticks or colorbins '\
+                                        'if specifying labels'
+        if colorticks:
+            assert len(colorticks) == len(colortick_labels), 'colorticks and '\
+                                       'colortick labels must be same size' 
+        elif colorbins:
+            assert len(colorbins) == len(colortick_labels)
 
     # Set up projection parameters
     if not minlat:
@@ -192,9 +197,15 @@ def geosmap(lon, lat, data, proj = 'mill',
         WhGrYlRd_scheme = np.genfromtxt('WhGrYlRd.txt',delimiter=' ')
         colormap = mpl.colors.ListedColormap(WhGrYlRd_scheme/255)
 
+
+    NORM = None
+    if colorbins:
+        tiks = colorbins
+        NORM = mpl.colors.BoundaryNorm(tiks,mpl.colors.Colormap(colormap).N)
+
     if colorticks:
         tiks = colorticks
-    else:
+    elif not colorbins:
         tiks = np.linspace(np.min(data),np.max(data),10)
 
     if colorlimits:
@@ -203,10 +214,12 @@ def geosmap(lon, lat, data, proj = 'mill',
         vmin, vmax = min(tiks), max(tiks)
 
     if plottype == 'pcolor':
-        bm.pcolor(x,y,data, cmap=colormap, vmin=vmin, vmax=vmax)
+        bm.pcolor(x,y,data, cmap=colormap, vmin=vmin, vmax=vmax,
+                  norm=NORM)
 
     elif plottype == 'contourf':
-        bm.contourf(x,y,data, vmin=vmin, vmax=vmax, cmap=colormap)
+        bm.contourf(x,y,data, vmin=vmin, vmax=vmax, cmap=colormap,
+                    norm=NORM)
     else:
         print "plottype not recognized"
         raise TypeError
@@ -268,7 +281,7 @@ if __name__=='__main__':
 
     zdata = 10*make_z(lon,lat).T + noise -5.5
 
-    fg = geosmap(lon,lat,zdata, colorticks = [-5.,-2.5, 0., 2.5, 5], minlat=-30,
+    fg = geosmap(lon,lat,zdata, colorbins = [-5.,-2.5, 0., 2.5, 5], minlat=-30,
                  colorbar_orientation='right', 
                  colortick_labels=['-5','-2 1/2','zero','2.5','five'],
                  title='Title',subplot=True, subplot_position=(1,2,1))
