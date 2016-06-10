@@ -237,7 +237,15 @@ def geosmap(lon, lat, data, proj = 'mill',
 
     divider = mal(ax)
     if not colortick_labels:
-        tiklabs = ['%.2f'%ti for ti in tiks]
+        strs = ['%.2G'%ti for ti in tiks]
+        brks = [s.split('E') for s in strs]
+        tiklabs = []
+        for br in brks:
+            if len(br) > 1:
+                t = '%s x10$ ^{%s} $'%(br[0],int(br[1]))
+            else:
+                t = br[0]
+            tiklabs.append(t)
     else:
         tiklabs = colortick_labels
 
