@@ -230,10 +230,11 @@ def geosmap(lon, lat, data, proj = 'mill',
         print "plottype not recognized"
         raise TypeError
     
-    if title and (colorbar_orientation in ['horizontal','bottom']):
-        fig.suptitle(title,fontsize=titlefontsize)
+    if title and not (colorbar_orientation in ['top']):
+        ax.set_title(title,fontsize=titlefontsize)
     elif title:
-        fig.suptitle(title,fontsize=titlefontsize)
+        pass
+        #ax.set_title(title,fontsize=titlefontsize)
 
     divider = mal(ax)
     if not colortick_labels:
